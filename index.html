@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Профбюро транспортного факультета</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Golos+Text:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Макет: по странице идёт линия метро, каждый раздел — остановка на ней. Фон — схема маршрутов. */
+:root {
+  --black: #08050d;
+  --ink: #130b1f;
+  --violet: #7c3aed;
+  --violet-hi: #b79cff;
+  --violet-deep: #3b1a78;
+  --white: #ffffff;
+  --mute: #b4a9cc;
+  --signal: #ffd23f;
+  --f-display: 'Unbounded', 'Arial Black', Impact, sans-serif;
+  --f-body: 'Golos Text', 'Segoe UI', Arial, sans-serif;
+  --f-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+  --lx: 17px;
+  --pad: 56px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.55;
+  padding-inline: clamp(16px, 4vw, 40px);
+  padding-block: 0 40px;
+}
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }
+
+/* Фон */
+.bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.bg::before {
+  content: ""; position: absolute; inset: 0;
+  background:
+    radial-gradient(60vw 50vw at 90% -10%, rgba(124,58,237,.38), transparent 70%),
+    radial-gradient(55vw 45vw at -10% 105%, rgba(91,33,182,.34), transparent 70%),
+    linear-gradient(180deg, #0b0612, #08050d);
+}
+.bg::after {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(183,156,255,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(183,156,255,.06) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: linear-gradient(180deg, #000, transparent 85%);
+  mask-image: linear-gradient(180deg, #000, transparent 85%);
+}
+.bg svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.wrap { max-width: 1200px; margin-inline: auto; }
+.mono { font-family: var(--f-mono); letter-spacing: .14em; text-transform: uppercase; font-size: .75rem; }
+
+/* Шапка */
+.top {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 14px 24px; padding-block: 22px;
+}
+.brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.brand-name { display: flex; flex-direction: column; min-width: 0; }
+.brand-name b { font-family: var(--f-display); font-size: 1.1rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.nav { display: flex; gap: 8px; flex-wrap: wrap; }
+.nav a {
+  text-decoration: none; padding: 8px 14px; border: 1px solid rgba(183,156,255,.35);
+  font-family: var(--f-mono); font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
+  transition: background .2s, border-color .2s;
+}
+.nav a:hover { background: var(--violet); border-color: var(--violet); }
+
+/* Линия метро */
+.line { position: relative; padding-left: var(--pad); }
+.line::before {
+  content: ""; position: absolute; top: 30px; bottom: 0; left: calc(var(--lx) - 3px); width: 6px;
+  background: linear-gradient(180deg, var(--violet-hi), var(--violet) 40%, var(--violet-deep));
+  border-radius: 3px;
+}
+.station { position: relative; }
+.station::before {
+  content: ""; position: absolute; top: .35em; left: calc(var(--lx) - var(--pad) - 11px);
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--black); border: 5px solid var(--white);
+  box-shadow: 0 0 0 4px rgba(124,58,237,.45);
+  transition: background-color .25s, border-color .25s, box-shadow .25s;
+}
+.station.active::before { background: var(--signal); border-color: var(--black); box-shadow: 0 0 0 4px var(--signal); }
+
+/* Первый экран */
+.hero { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 32px 48px; align-items: end; padding-bottom: 8px; }
+.eyebrow { color: var(--violet-hi); margin: 0 0 16px; }
+h1 { margin: 0; font-family: var(--f-display); overflow-wrap: anywhere; }
+.h1a { display: block; font-size: clamp(2.2rem, 8vw, 4.8rem); font-weight: 800; line-height: 1.02; text-transform: uppercase; }
+.h1b {
+  display: block; margin-top: 14px; font-size: clamp(1.15rem, 3.4vw, 2.1rem); font-weight: 600; line-height: 1.2;
+  color: var(--violet-hi); text-wrap: balance;
+}
+.lede { margin: 22px 0 0; max-width: 46ch; color: var(--mute); font-size: 1.1rem; }
+
+.board { border: 1px solid rgba(183,156,255,.35); background: rgba(19,11,31,.7); padding: 18px 20px 20px; }
+.board p { margin: 0 0 14px; color: var(--mute); }
+.board ol { list-style: none; margin: 0; padding: 0 0 0 26px; position: relative; display: grid; gap: 14px; }
+.board ol::before { content: ""; position: absolute; left: 6px; top: 8px; bottom: 8px; width: 3px; background: var(--violet); }
+.board li { position: relative; }
+.board li::before {
+  content: ""; position: absolute; left: -26px; top: 50%; width: 15px; height: 15px; margin-top: -7px;
+  border-radius: 50%; background: var(--black); border: 3px solid var(--white);
+  transition: background-color .25s, border-color .25s;
+}
+.board li.active::before { border-color: var(--signal); background: var(--signal); }
+.board a { text-decoration: none; font-weight: 600; display: block; }
+.board a:hover { color: var(--violet-hi); }
+
+.road {
+  position: relative; height: 84px; margin-top: clamp(28px, 5vw, 52px); overflow: hidden;
+  border-block: 2px solid rgba(183,156,255,.4); background: #0d0716;
+}
+.road::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 12px; height: 4px;
+  background: repeating-linear-gradient(90deg, var(--white) 0 28px, transparent 28px 56px);
+  opacity: .6; animation: dash 1.6s linear infinite;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+}
+@keyframes dash { to { background-position: -56px 0; } }
+.car { position: absolute; bottom: 20px; left: 0; width: 150px; color: var(--violet); animation: drive 14s linear infinite; }
+.car svg { display: block; width: 100%; height: auto; }
+@keyframes drive { from { transform: translateX(-180px); } to { transform: translateX(100vw); } }
+
+/* Разделы */
+.section { padding-top: clamp(48px, 8vw, 88px); }
+.sec-head { margin-bottom: 26px; }
+.sec-head h2 { margin: 0; font-family: var(--f-display); font-size: clamp(1.5rem, 3.4vw, 2.4rem); font-weight: 800; text-transform: uppercase; line-height: 1.1; }
+.sec-head p { margin: 8px 0 0; color: var(--mute); }
+
+/* Рамки */
+.gallery {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: clamp(190px, 22vw, 260px); grid-auto-flow: dense; gap: 16px;
+}
+.f1 { grid-column: span 2; grid-row: span 2; }
+.f4 { grid-row: span 2; }
+.f7 { grid-column: span 2; }
+
+.frame { margin: 0; min-width: 0; min-height: 0; display: flex; }
+.plate {
+  flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; padding: 8px;
+  background: linear-gradient(160deg, rgba(124,58,237,.30), rgba(19,11,31,.92) 55%);
+  border: 1px solid rgba(183,156,255,.35); border-radius: 2px;
+  transition: transform .25s, border-color .25s, box-shadow .25s;
+}
+.frame:hover .plate { transform: translateY(-3px); border-color: var(--violet-hi); box-shadow: 0 14px 40px -12px rgba(124,58,237,.6); }
+.media { position: relative; flex: 1; min-height: 0; background: #0e0817; overflow: hidden; }
+.media::before, .media::after { content: ""; position: absolute; width: 20px; height: 20px; z-index: 2; pointer-events: none; border: 2px solid var(--violet-hi); }
+.media::before { top: 8px; left: 8px; border-right: 0; border-bottom: 0; }
+.media::after { bottom: 8px; right: 8px; border-left: 0; border-top: 0; }
+.media img, .media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; background: #000; }
+.has .media img, .has .media video { display: block; }
+.has .media img { cursor: zoom-in; }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 4px 2px; color: var(--mute); min-width: 0; }
+.tag { background: var(--violet); color: var(--white); padding: 3px 8px; white-space: nowrap; }
+.cap { min-width: 0; overflow-wrap: anywhere; text-align: right; }
+
+.empty {
+  position: absolute; inset: 0; z-index: 1; display: grid; place-content: center; justify-items: center; gap: 10px;
+  padding: 12px; border: 0; cursor: pointer; text-align: center; color: var(--violet-hi);
+  background: repeating-linear-gradient(135deg, rgba(124,58,237,.12) 0 14px, transparent 14px 28px);
+  font-family: var(--f-mono); font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
+  transition: background-color .2s;
+}
+.empty:hover { background-color: rgba(124,58,237,.22); color: var(--white); }
+.empty svg { width: 34px; height: 34px; }
+.has .empty { display: none; }
+.swap {
+  position: absolute; right: 12px; top: 12px; z-index: 3; border: 1px solid rgba(255,255,255,.5);
+  background: rgba(8,5,13,.78); color: var(--white); padding: 6px 10px; cursor: pointer;
+  font-family: var(--f-mono); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+}
+.swap:hover { background: var(--violet); border-color: var(--violet); }
+.frame:not(.has) .swap, .vplate:not(.has) .swap, .logo:not(.has) .swap { display: none; }
+@media (hover: hover) {
+  .swap { opacity: 0; transition: opacity .2s; }
+  .frame:hover .swap, .vplate:hover .swap, .swap:focus-visible { opacity: 1; }
+}
+
+/* Видео */
+.vplate {
+  padding: 10px; max-width: 100%;
+  background: linear-gradient(160deg, rgba(124,58,237,.34), rgba(19,11,31,.94) 60%);
+  border: 1px solid rgba(183,156,255,.45); border-radius: 2px;
+  box-shadow: 0 30px 80px -30px rgba(124,58,237,.7);
+}
+.vbar { display: flex; align-items: center; gap: 12px; padding: 4px 4px 12px; color: var(--mute); min-width: 0; }
+.vbar .sig { background: var(--signal); color: var(--black); padding: 3px 9px; font-weight: 500; }
+.vbar .mid { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vbar .dots { display: flex; gap: 6px; }
+.vbar .dots i { width: 9px; height: 9px; border-radius: 50%; border: 2px solid var(--violet-hi); }
+.vplate .media { aspect-ratio: 16 / 9; max-width: 100%; flex: none; }
+.vplate .empty svg { width: 64px; height: 64px; }
+.vfoot { padding: 10px 4px 2px; color: var(--mute); }
+
+/* Лайтбокс */
+.lb { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 24px; background: rgba(5,2,10,.94); cursor: zoom-out; }
+.lb img { max-width: 100%; max-height: 100%; border: 1px solid rgba(183,156,255,.5); }
+
+/* Логотип */
+.logo { position: relative; width: 52px; height: 52px; flex: none; border: 1px solid rgba(183,156,255,.5); background: #0e0817; }
+.logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: none; }
+.logo.has img { display: block; }
+.logo .empty { padding: 0; font-size: .6rem; letter-spacing: .08em; gap: 0; }
+.logo .swap { right: 0; top: 0; padding: 2px 5px; font-size: .55rem; }
+
+/* Подвал */
+.foot { margin-top: clamp(48px, 8vw, 88px); padding-block: 26px 8px; border-top: 1px solid rgba(183,156,255,.3); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px 28px; color: var(--mute); }
+.foot ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.foot a { color: var(--white); }
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: minmax(0, 1fr); }
+  .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .f1, .f6, .f7 { grid-column: span 2; grid-row: span 1; }
+  .f4 { grid-row: span 1; }
+}
+@media (max-width: 560px) {
+  :root { --lx: 11px; --pad: 38px; }
+  .gallery { grid-template-columns: minmax(0, 1fr); grid-auto-rows: 240px; }
+  .f1, .f6, .f7 { grid-column: span 1; }
+  .car { width: 118px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+  .car { left: 55%; }
+}
+[hidden]{display:none!important}
+img{max-width:100%}
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" fill="none">
+    <g stroke="#7c3aed" stroke-width="10" stroke-linejoin="round" opacity=".28">
+      <path d="M-20 150 H320 L420 250 H900 L1000 150 H1460"/>
+      <path d="M-20 720 H200 L300 620 H640 L740 720 H1460"/>
+    </g>
+    <g stroke="#b79cff" stroke-width="6" stroke-linejoin="round" opacity=".22">
+      <path d="M1120 -20 V230 L1200 310 V920"/>
+      <path d="M250 -20 V300 L170 380 V920"/>
+    </g>
+    <g fill="#08050d" stroke="#fff" stroke-width="4" opacity=".3">
+      <circle cx="420" cy="250" r="11"/><circle cx="900" cy="250" r="11"/><circle cx="1000" cy="150" r="11"/>
+      <circle cx="300" cy="620" r="11"/><circle cx="740" cy="720" r="11"/><circle cx="1200" cy="310" r="11"/>
+      <circle cx="170" cy="380" r="11"/><circle cx="1120" cy="120" r="11"/>
+    </g>
+  </svg>
+</div>
+
+<div class="wrap">
+  <header class="top" id="top">
+    <div class="brand">
+      <div class="logo" id="logo">
+        <img alt="Логотип">
+        <button class="empty" type="button" aria-label="Выбрать логотип">Лого</button>
+        <button class="swap" type="button" aria-label="Заменить логотип">Заменить</button>
+        <input type="file" accept="image/*" hidden>
+      </div>
+      <div class="brand-name">
+        <b>Точка Сбора</b>
+      </div>
+    </div>
+    <nav class="nav" aria-label="Разделы">
+      <a href="#photos">Фото</a>
+      <a href="#video">Видео</a>
+    </nav>
+  </header>
+
+  <main class="line">
+    <section class="hero station active" data-stop="top">
+      <div>
+        <p class="eyebrow mono">Старт</p>
+        <h1><span class="h1a">Профбюро</span><span class="h1b">транспортного факультета</span></h1>
+        <p class="lede">Наши фотографии и видео в одном месте.</p>
+      </div>
+      <nav class="board" aria-label="Маршрут по странице">
+        <p class="mono">Маршрут</p>
+        <ol>
+          <li class="active" data-stop="top"><a href="#top">Отправление</a></li>
+          <li data-stop="photos"><a href="#photos">Фотографии</a></li>
+          <li data-stop="video"><a href="#video">Видео</a></li>
+        </ol>
+      </nav>
+    </section>
+
+    <div class="road" aria-hidden="true">
+      <div class="car">
+        <svg viewBox="0 0 150 50" fill="none">
+          <rect x="3" y="17" width="19" height="3" fill="#b79cff"/>
+          <rect x="7" y="20" width="2.5" height="5" fill="#b79cff"/>
+          <rect x="15" y="20" width="2.5" height="5" fill="#b79cff"/>
+          <path d="M6 36 L6 29 Q7 25 16 24 L46 22 Q54 9 72 8 L86 8 L108 21 L136 26 Q146 28 146 33 L146 36 Z" fill="currentColor"/>
+          <path d="M52 21 Q58 12 72 11.5 L84 11.5 L100 21 Z" fill="#f3ecff"/>
+          <path d="M74 11.5 V21" stroke="currentColor" stroke-width="2"/>
+          <path d="M10 31 H142" stroke="#08050d" stroke-opacity=".35" stroke-width="2.5"/>
+          <path d="M138 27.5 L145 29 L145 32 L138 31 Z" fill="#ffd23f"/>
+          <circle cx="32" cy="36" r="12" fill="#0d0716"/>
+          <circle cx="118" cy="36" r="12" fill="#0d0716"/>
+          <circle cx="32" cy="36" r="9" fill="#08050d" stroke="#fff" stroke-width="3"/>
+          <circle cx="118" cy="36" r="9" fill="#08050d" stroke="#fff" stroke-width="3"/>
+          <circle cx="32" cy="36" r="2.5" fill="#b79cff"/>
+          <circle cx="118" cy="36" r="2.5" fill="#b79cff"/>
+        </svg>
+      </div>
+    </div>
+
+    <section class="section" id="photos">
+      <div class="sec-head station" data-stop="photos">
+        <h2>Фотографии</h2>
+      </div>
+      <div class="gallery" id="gallery"></div>
+    </section>
+
+    <section class="section" id="video">
+      <div class="sec-head station" data-stop="video">
+        <h2>Видео</h2>
+      </div>
+      <div class="vplate" id="vplate">
+        <div class="vbar mono">
+          <span class="sig">Видео</span>
+          <span class="mid">Профбюро транспортного факультета</span>
+          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        </div>
+        <div class="media">
+          <video controls playsinline preload="metadata"></video>
+          <button class="empty" type="button" aria-label="Выбрать видео">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><circle cx="32" cy="32" r="28"/><path d="M26 20 L46 32 L26 44 Z" fill="currentColor"/></svg>
+            Нажмите, чтобы выбрать видео
+          </button>
+          <button class="swap" type="button" aria-label="Заменить видео">Заменить</button>
+          <input type="file" accept="video/*" hidden>
+        </div>
+        <div class="vfoot mono" id="vcap" hidden></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span class="mono">© 2026 Профбюро транспортного факультета</span>
+    <ul id="contacts"></ul>
+  </footer>
+</div>
+
+<div class="lb" id="lb" hidden><img alt=""></div>
+
+<script>
+/* ============================================================
+   НАСТРОЙКИ. Здесь вставляются свои картинки и видео.
+   src: ссылка на файл, который лежит рядом со страницей
+        (например "photos/1.jpg"), либо data:-адрес
+        ("data:image/jpeg;base64,...").
+   Чужие сайты браузер здесь не загрузит, только свои файлы.
+   Пока src пуст, в рамке стоит кнопка выбора файла
+   (выбранный файл запоминается только в этом браузере).
+   ============================================================ */
+const CONFIG = {
+  logo: "",
+  photos: [
+    { src: "", caption: "" },
+    { src: "", caption: "" },
+    { src: "", caption: "" },
+    { src: "", caption: "" },
+    { src: "", caption: "" },
+    { src: "", caption: "" },
+    { src: "", caption: "" }
+  ],
+  video: { src: "", poster: "", caption: "" },
+  contacts: [
+    /* { label: "Telegram", value: "@profbureau", href: "https://t.me/profbureau" } */
+  ]
+};
+
+(function () {
+  var idb = (function () {
+    var p;
+    function open() {
+      return p || (p = new Promise(function (res, rej) {
+        try {
+          var r = indexedDB.open('profbureau-media', 1);
+          r.onupgradeneeded = function () { r.result.createObjectStore('m'); };
+          r.onsuccess = function () { res(r.result); };
+          r.onerror = function () { rej(r.error); };
+        } catch (e) { rej(e); }
+      }));
+    }
+    function run(mode, fn) {
+      return open().then(function (db) {
+        return new Promise(function (res, rej) {
+          var t = db.transaction('m', mode);
+          var q = fn(t.objectStore('m'));
+          t.oncomplete = function () { res(q.result); };
+          t.onerror = function () { rej(t.error); };
+        });
+      });
+    }
+    return {
+      get: function (k) { return run('readonly', function (s) { return s.get(k); }).catch(function () { return undefined; }); },
+      set: function (k, v) { return run('readwrite', function (s) { return s.put(v, k); }).catch(function () {}); }
+    };
+  })();
+
+  var ICON_IMG = '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="6" y="10" width="36" height="28" rx="2"/><circle cx="17" cy="21" r="3.5"/><path d="M6 34 L18 24 L26 31 L33 25 L42 33"/></svg>';
+
+  function bind(root, key, cfgSrc, poster) {
+    var el = root.querySelector('img, video');
+    var input = root.querySelector('input[type=file]');
+    function show(url) {
+      el.src = url;
+      if (poster && el.tagName === 'VIDEO') el.poster = poster;
+      root.classList.add('has');
+    }
+    root.querySelectorAll('.empty, .swap').forEach(function (b) {
+      b.addEventListener('click', function () { input.click(); });
+    });
+    input.addEventListener('change', function () {
+      var f = input.files && input.files[0];
+      if (!f) return;
+      idb.set(key, f);
+      show(URL.createObjectURL(f));
+      input.value = '';
+    });
+    if (cfgSrc) show(cfgSrc);
+    idb.get(key).then(function (blob) { if (blob) show(URL.createObjectURL(blob)); });
+  }
+
+  // Фото
+  var gallery = document.getElementById('gallery');
+  CONFIG.photos.forEach(function (ph, i) {
+    var n = String(i + 1).padStart(2, '0');
+    var fig = document.createElement('figure');
+    fig.className = 'frame f' + (i + 1);
+    fig.innerHTML =
+      '<div class="plate"><div class="media">' +
+      '<img alt="Фото ' + n + '">' +
+      '<button class="empty" type="button" aria-label="Выбрать фото ' + n + '">' + ICON_IMG + 'Место для фото</button>' +
+      '<button class="swap" type="button" aria-label="Заменить фото ' + n + '">Заменить</button>' +
+      '<input type="file" accept="image/*" hidden></div>' +
+      '<figcaption class="bar mono"><span class="tag">Фото ' + n + '</span><span class="cap"></span></figcaption></div>';
+    fig.querySelector('.cap').textContent = ph.caption || '';
+    gallery.appendChild(fig);
+    bind(fig, 'photo-' + i, ph.src);
+  });
+
+  // Видео
+  var vp = document.getElementById('vplate');
+  bind(vp, 'video', CONFIG.video.src, CONFIG.video.poster);
+  if (CONFIG.video.caption) {
+    var vc = document.getElementById('vcap');
+    vc.textContent = CONFIG.video.caption;
+    vc.hidden = false;
+  }
+
+  // Логотип
+  bind(document.getElementById('logo'), 'logo', CONFIG.logo);
+
+  // Контакты
+  var ul = document.getElementById('contacts');
+  CONFIG.contacts.forEach(function (c) {
+    var li = document.createElement('li');
+    li.appendChild(document.createTextNode(c.label + ': '));
+    var a = document.createElement(c.href ? 'a' : 'span');
+    if (c.href) { a.href = c.href; a.target = '_blank'; a.rel = 'noopener'; }
+    a.textContent = c.value;
+    li.appendChild(a);
+    ul.appendChild(li);
+  });
+
+  // Лайтбокс
+  var lb = document.getElementById('lb');
+  var lbImg = lb.querySelector('img');
+  gallery.addEventListener('click', function (e) {
+    var t = e.target;
+    if (t.tagName === 'IMG' && t.closest('.has')) {
+      lbImg.src = t.src;
+      lb.hidden = false;
+    }
+  });
+  lb.addEventListener('click', function () { lb.hidden = true; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') lb.hidden = true; });
+
+  // Текущая остановка: жёлтый маркер на маршруте и на линии слева
+  var stops = ['top', 'photos', 'video'];
+  var marks = document.querySelectorAll('[data-stop]');
+  var anchors = {
+    top: document.querySelector('.hero'),
+    photos: document.querySelector('#photos .sec-head'),
+    video: document.querySelector('#video .sec-head')
+  };
+  var current = 'top';
+  var lock = false, lockTimer, lockMax, ticking = false;
+
+  function setStop(id) {
+    if (id === current) return;
+    current = id;
+    marks.forEach(function (m) { m.classList.toggle('active', m.dataset.stop === id); });
+  }
+  function spy() {
+    if (lock) return;
+    var h = window.innerHeight, id = 'top';
+    stops.forEach(function (s) {
+      if (anchors[s].getBoundingClientRect().top <= h * 0.4) id = s;
+    });
+    if (window.scrollY + h >= document.documentElement.scrollHeight - 4) id = 'video';
+    setStop(id);
+  }
+  function go(id) {
+    var target = document.getElementById(id);
+    if (!target) return;
+    setStop(id);
+    lock = true;
+    clearTimeout(lockMax);
+    lockMax = setTimeout(function () { lock = false; spy(); }, 1500);
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  }
+  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+    var id = a.getAttribute('href').slice(1);
+    if (stops.indexOf(id) < 0) return;
+    a.addEventListener('click', function (e) { e.preventDefault(); go(id); });
+  });
+  window.addEventListener('scroll', function () {
+    if (lock) {
+      clearTimeout(lockTimer);
+      lockTimer = setTimeout(function () { lock = false; clearTimeout(lockMax); spy(); }, 140);
+    }
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(function () { ticking = false; spy(); });
+    }
+  }, { passive: true });
+  spy();
+})();
+</script>
+
+</body>
+</html>
