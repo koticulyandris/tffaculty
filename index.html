@@ -556,11 +556,12 @@ const CONFIG = {
         return;
       }
       if (!window.BlobClient) { toast('Загрузка недоступна'); return; }
-      var name = f.name.replace(/[^A-Za-z0-9._-]+/g, '_').slice(-60) || 'file';
+      var name = f.name.replace(/[^A-Za-z0-9._-]+/g, '_').slice(-60).replace(/^[._-]+/, '') || 'file';
       root.classList.add('busy');
       prog.textContent = '0%';
-      window.BlobClient.upload('media/' + key + '/' + name, f, {
+      window.BlobClient.upload('media/' + key + '/' + Date.now() + '-' + name, f, {
         access: 'public',
+        contentType: f.type,
         handleUploadUrl: '/api/upload',
         clientPayload: password,
         multipart: f.size > 8 * 1024 * 1024,
