@@ -68,7 +68,11 @@ a { color: inherit; }
 .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
 .brand-name { display: flex; flex-direction: column; min-width: 0; }
 .brand-name b { font-family: var(--f-display); font-size: 1.1rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.right { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px 20px; min-width: 0; }
 .nav { display: flex; gap: 8px; flex-wrap: wrap; }
+.social a { display: inline-flex; align-items: center; gap: 8px; border-color: rgba(183,156,255,.6); }
+.social svg { width: 18px; height: 18px; flex: none; color: var(--violet-hi); transition: color .2s; }
+.social a:hover svg { color: var(--white); }
 .nav a {
   text-decoration: none; padding: 8px 14px; border: 1px solid rgba(183,156,255,.35);
   font-family: var(--f-mono); font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
@@ -178,16 +182,17 @@ h1 { margin: 0; font-family: var(--f-display); overflow-wrap: anywhere; }
 .empty:hover { background-color: rgba(124,58,237,.22); color: var(--white); }
 .empty svg { width: 34px; height: 34px; }
 .has .empty { display: none; }
-.swap {
+.swap, .del {
   position: absolute; right: 12px; top: 12px; z-index: 3; border: 1px solid rgba(255,255,255,.5);
   background: rgba(8,5,13,.78); color: var(--white); padding: 6px 10px; cursor: pointer;
   font-family: var(--f-mono); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
 }
-.swap:hover { background: var(--violet); border-color: var(--violet); }
+.swap:hover, .del:hover { background: var(--violet); border-color: var(--violet); }
+.del { right: auto; left: 38px; top: 12px; }
 .frame:not(.has) .swap, .vplate:not(.has) .swap, .logo:not(.has) .swap { display: none; }
 @media (hover: hover) {
-  .swap { opacity: 0; transition: opacity .2s; }
-  .frame:hover .swap, .vplate:hover .swap, .swap:focus-visible { opacity: 1; }
+  .swap, .del { opacity: 0; transition: opacity .2s; }
+  .frame:hover .swap, .vplate:hover .swap, .frame:hover .del, .vplate:hover .del, .swap:focus-visible, .del:focus-visible { opacity: 1; }
 }
 
 /* Видео */
@@ -205,6 +210,59 @@ h1 { margin: 0; font-family: var(--f-display); overflow-wrap: anywhere; }
 .vplate .media { aspect-ratio: 16 / 9; max-width: 100%; flex: none; }
 .vplate .empty svg { width: 64px; height: 64px; }
 .vfoot { padding: 10px 4px 2px; color: var(--mute); }
+
+
+/* Режим редактирования: кнопки видны только после входа по паролю */
+body:not(.edit) .swap, body:not(.edit) .del { display: none; }
+.logo .del { display: none !important; }
+body:not(.edit) .empty { cursor: default; pointer-events: none; }
+body.edit .empty { color: var(--signal); outline: 2px dashed rgba(255,210,63,.7); outline-offset: -8px; }
+body.edit .empty:hover { background-color: rgba(255,210,63,.12); }
+.prog {
+  position: absolute; inset: 0; z-index: 4; display: none; place-content: center; text-align: center;
+  background: rgba(8,5,13,.86); color: var(--signal);
+  font-family: var(--f-mono); font-size: .8rem; letter-spacing: .12em; text-transform: uppercase;
+}
+.busy .prog { display: grid; }
+.logo .prog { font-size: .55rem; letter-spacing: 0; }
+
+body.edit { padding-bottom: 110px; }
+.editbar {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 40;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px)); max-width: calc(100% - 32px);
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: center;
+  background: var(--signal); color: var(--black); padding: 10px 16px; border-radius: 2px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.6);
+}
+.editbar button { background: var(--black); color: var(--white); border: 0; padding: 6px 12px; cursor: pointer; font: inherit; letter-spacing: inherit; text-transform: inherit; }
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 70;
+  bottom: calc(76px + env(safe-area-inset-bottom, 0px)); max-width: calc(100% - 32px);
+  background: #3b0d1d; color: #ffd6df; border: 1px solid #ff6b8a; padding: 10px 16px;
+}
+.modal { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 20px; background: rgba(5,2,10,.92); }
+.modal form {
+  width: min(100%, 380px); display: grid; gap: 14px; padding: 22px;
+  background: var(--ink); border: 1px solid rgba(183,156,255,.5); box-shadow: 0 30px 80px -30px rgba(124,58,237,.8);
+}
+.modal h3 { margin: 0; font-family: var(--f-display); font-size: 1.1rem; text-transform: uppercase; }
+.modal input {
+  width: 100%; padding: 12px 14px; background: #0b0612; color: var(--white);
+  border: 1px solid rgba(183,156,255,.5); font: inherit; border-radius: 0;
+}
+.modal .row { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn {
+  border: 1px solid var(--violet); background: var(--violet); color: var(--white); padding: 10px 18px; cursor: pointer;
+  font-family: var(--f-mono); font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
+}
+.btn.ghost { background: transparent; border-color: rgba(183,156,255,.5); }
+.btn:hover { filter: brightness(1.15); }
+.err { color: #ff9db1; min-height: 1.4em; margin: 0; }
+.foot .login-btn {
+  background: none; border: 1px solid rgba(183,156,255,.35); color: var(--mute); padding: 6px 12px; cursor: pointer;
+  font-family: var(--f-mono); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase;
+}
+.foot .login-btn:hover { color: var(--white); border-color: var(--violet-hi); }
 
 /* Лайтбокс */
 .lb { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 24px; background: rgba(5,2,10,.94); cursor: zoom-out; }
@@ -275,10 +333,22 @@ img{max-width:100%}
         <b>Точка Сбора</b>
       </div>
     </div>
-    <nav class="nav" aria-label="Разделы">
-      <a href="#photos">Фото</a>
-      <a href="#video">Видео</a>
-    </nav>
+    <div class="right">
+      <nav class="nav" aria-label="Разделы">
+        <a href="#photos">Фото</a>
+        <a href="#video">Видео</a>
+      </nav>
+      <div class="nav social">
+        <a href="https://t.me/tffaculty" target="_blank" rel="noopener" aria-label="Telegram">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="currentColor"/><path d="M5 11.8 17.6 6.9c.6-.2 1.1.1.9 1l-2.1 10c-.2.7-.6.9-1.2.6l-3.3-2.4-1.6 1.5c-.2.2-.3.3-.7.3l.2-3.4 6.1-5.5c.3-.2-.1-.4-.4-.2l-7.5 4.7-3.2-1c-.7-.2-.7-.7.2-1z" fill="#08050d"/></svg>
+          <span>Telegram</span>
+        </a>
+        <a href="https://vk.ru/tfaculty" target="_blank" rel="noopener" aria-label="ВКонтакте">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="currentColor"/><text x="12" y="16.2" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="11" fill="#08050d">VK</text></svg>
+          <span>VK</span>
+        </a>
+      </div>
+    </div>
   </header>
 
   <main class="line">
@@ -353,20 +423,38 @@ img{max-width:100%}
   <footer class="foot">
     <span class="mono">© 2026 Профбюро транспортного факультета</span>
     <ul id="contacts"></ul>
+    <button class="login-btn" id="loginBtn" type="button">Редактировать</button>
   </footer>
 </div>
 
 <div class="lb" id="lb" hidden><img alt=""></div>
 
+<div class="modal" id="login" hidden>
+  <form id="loginForm" autocomplete="off">
+    <h3>Вход для редактирования</h3>
+    <input id="pw" type="password" placeholder="Пароль" autocomplete="current-password" required>
+    <p class="err" id="loginErr" role="alert"></p>
+    <div class="row">
+      <button class="btn" type="submit">Войти</button>
+      <button class="btn ghost" type="button" id="loginCancel">Отмена</button>
+    </div>
+  </form>
+</div>
+<div class="editbar mono" id="editbar" hidden>
+  <span>Режим редактирования: нажмите на рамку, чтобы загрузить файл</span>
+  <button type="button" id="logoutBtn">Выйти</button>
+</div>
+<div class="toast mono" id="toast" role="status" hidden></div>
+<script src="blob-client.js"></script>
+
 <script>
 /* ============================================================
-   НАСТРОЙКИ. Здесь вставляются свои картинки и видео.
-   src: ссылка на файл, который лежит рядом со страницей
-        (например "photos/1.jpg"), либо data:-адрес
-        ("data:image/jpeg;base64,...").
-   Чужие сайты браузер здесь не загрузит, только свои файлы.
-   Пока src пуст, в рамке стоит кнопка выбора файла
-   (выбранный файл запоминается только в этом браузере).
+   НАСТРОЙКИ. Фото, видео и логотип меняются прямо на сайте:
+   внизу страницы кнопка «Редактировать», вход по паролю.
+   Загруженное видят все посетители.
+   src ниже нужен только как запасной вариант, пока в рамку
+   ничего не загружено (путь к файлу рядом со страницей,
+   например "photos/1.jpg").
    ============================================================ */
 const CONFIG = {
   logo: "",
@@ -386,60 +474,111 @@ const CONFIG = {
 };
 
 (function () {
-  var idb = (function () {
-    var p;
-    function open() {
-      return p || (p = new Promise(function (res, rej) {
-        try {
-          var r = indexedDB.open('profbureau-media', 1);
-          r.onupgradeneeded = function () { r.result.createObjectStore('m'); };
-          r.onsuccess = function () { res(r.result); };
-          r.onerror = function () { rej(r.error); };
-        } catch (e) { rej(e); }
-      }));
-    }
-    function run(mode, fn) {
-      return open().then(function (db) {
-        return new Promise(function (res, rej) {
-          var t = db.transaction('m', mode);
-          var q = fn(t.objectStore('m'));
-          t.oncomplete = function () { res(q.result); };
-          t.onerror = function () { rej(t.error); };
-        });
-      });
-    }
-    return {
-      get: function (k) { return run('readonly', function (s) { return s.get(k); }).catch(function () { return undefined; }); },
-      set: function (k, v) { return run('readwrite', function (s) { return s.put(v, k); }).catch(function () {}); }
-    };
-  })();
-
   var ICON_IMG = '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="6" y="10" width="36" height="28" rx="2"/><circle cx="17" cy="21" r="3.5"/><path d="M6 34 L18 24 L26 31 L33 25 L42 33"/></svg>';
+
+  var password = '';
+  try { password = sessionStorage.getItem('pb-pass') || ''; } catch (e) {}
+  var editing = false;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var toastEl = $('toast'), toastTimer;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.hidden = true; }, 5000);
+  }
+
+  function admin(action, data) {
+    var body = { action: action, password: password };
+    for (var k in (data || {})) body[k] = data[k];
+    return fetch('/api/admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; });
+    });
+  }
+
+  var slots = {};
 
   function bind(root, key, cfgSrc, poster) {
     var el = root.querySelector('img, video');
     var input = root.querySelector('input[type=file]');
+    var holder = root.querySelector('.media') || root;
+    var prog = document.createElement('div');
+    prog.className = 'prog';
+    holder.appendChild(prog);
+    if (key !== 'logo') {
+      var delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'del';
+      delBtn.textContent = 'Убрать';
+      holder.appendChild(delBtn);
+      delBtn.addEventListener('click', function () {
+        if (!editing) return;
+        if (delBtn.dataset.sure !== '1') {
+          delBtn.dataset.sure = '1';
+          delBtn.textContent = 'Точно убрать?';
+          setTimeout(function () { delBtn.dataset.sure = ''; delBtn.textContent = 'Убрать'; }, 3000);
+          return;
+        }
+        delBtn.dataset.sure = '';
+        delBtn.textContent = 'Убрать';
+        admin('remove', { key: key }).then(function (r) {
+          if (r.ok) clear(); else toast(r.j.error || 'Не удалось убрать');
+        }).catch(function () { toast('Нет связи с сервером'); });
+      });
+    }
+
     function show(url) {
       el.src = url;
       if (poster && el.tagName === 'VIDEO') el.poster = poster;
       root.classList.add('has');
     }
-    root.querySelectorAll('.empty, .swap').forEach(function (b) {
-      b.addEventListener('click', function () { input.click(); });
-    });
+    function clear() {
+      el.removeAttribute('src');
+      if (el.tagName === 'VIDEO') el.load();
+      root.classList.remove('has');
+      if (cfgSrc) show(cfgSrc);
+    }
+    function pick() { if (editing) input.click(); }
+    root.querySelectorAll('.empty, .swap').forEach(function (b) { b.addEventListener('click', pick); });
+
     input.addEventListener('change', function () {
       var f = input.files && input.files[0];
-      if (!f) return;
-      idb.set(key, f);
-      show(URL.createObjectURL(f));
       input.value = '';
+      if (!f || !editing) return;
+      var wantVideo = key === 'video';
+      if (f.type.indexOf(wantVideo ? 'video/' : 'image/') !== 0) {
+        toast(wantVideo ? 'Выберите видеофайл' : 'Выберите картинку');
+        return;
+      }
+      if (!window.BlobClient) { toast('Загрузка недоступна'); return; }
+      var name = f.name.replace(/[^A-Za-z0-9._-]+/g, '_').slice(-60) || 'file';
+      root.classList.add('busy');
+      prog.textContent = '0%';
+      window.BlobClient.upload('media/' + key + '/' + name, f, {
+        access: 'public',
+        handleUploadUrl: '/api/upload',
+        clientPayload: password,
+        multipart: f.size > 8 * 1024 * 1024,
+        onUploadProgress: function (p) { prog.textContent = Math.round(p.percentage) + '%'; }
+      }).then(function (blob) {
+        show(blob.url);
+        return admin('prune', { key: key }).catch(function () {});
+      }).catch(function (e) {
+        toast('Не удалось загрузить: ' + ((e && e.message) || 'ошибка'));
+      }).then(function () { root.classList.remove('busy'); });
     });
+
     if (cfgSrc) show(cfgSrc);
-    idb.get(key).then(function (blob) { if (blob) show(URL.createObjectURL(blob)); });
+    slots[key] = { show: show, clear: clear };
   }
 
   // Фото
-  var gallery = document.getElementById('gallery');
+  var gallery = $('gallery');
   CONFIG.photos.forEach(function (ph, i) {
     var n = String(i + 1).padStart(2, '0');
     var fig = document.createElement('figure');
@@ -447,7 +586,7 @@ const CONFIG = {
     fig.innerHTML =
       '<div class="plate"><div class="media">' +
       '<img alt="Фото ' + n + '">' +
-      '<button class="empty" type="button" aria-label="Выбрать фото ' + n + '">' + ICON_IMG + 'Место для фото</button>' +
+      '<button class="empty" type="button" aria-label="Место для фото ' + n + '">' + ICON_IMG + 'Место для фото</button>' +
       '<button class="swap" type="button" aria-label="Заменить фото ' + n + '">Заменить</button>' +
       '<input type="file" accept="image/*" hidden></div>' +
       '<figcaption class="bar mono"><span class="tag">Фото ' + n + '</span><span class="cap"></span></figcaption></div>';
@@ -457,19 +596,18 @@ const CONFIG = {
   });
 
   // Видео
-  var vp = document.getElementById('vplate');
-  bind(vp, 'video', CONFIG.video.src, CONFIG.video.poster);
+  bind($('vplate'), 'video', CONFIG.video.src, CONFIG.video.poster);
   if (CONFIG.video.caption) {
-    var vc = document.getElementById('vcap');
+    var vc = $('vcap');
     vc.textContent = CONFIG.video.caption;
     vc.hidden = false;
   }
 
   // Логотип
-  bind(document.getElementById('logo'), 'logo', CONFIG.logo);
+  bind($('logo'), 'logo', CONFIG.logo);
 
   // Контакты
-  var ul = document.getElementById('contacts');
+  var ul = $('contacts');
   CONFIG.contacts.forEach(function (c) {
     var li = document.createElement('li');
     li.appendChild(document.createTextNode(c.label + ': '));
@@ -479,6 +617,56 @@ const CONFIG = {
     li.appendChild(a);
     ul.appendChild(li);
   });
+
+  // Общее содержимое: то, что загрузили редакторы, видят все
+  fetch('/api/state', { cache: 'no-cache' }).then(function (r) {
+    return r.ok ? r.json() : {};
+  }).then(function (st) {
+    Object.keys(slots).forEach(function (k) { if (st[k]) slots[k].show(st[k]); });
+  }).catch(function () {});
+
+  // Вход для редактирования
+  var loginBtn = $('loginBtn'), loginBox = $('login'), pw = $('pw'), loginErr = $('loginErr');
+  function setEditing(on) {
+    editing = on;
+    document.body.classList.toggle('edit', on);
+    $('editbar').hidden = !on;
+    loginBtn.hidden = on;
+    if (!on) {
+      password = '';
+      try { sessionStorage.removeItem('pb-pass'); } catch (e) {}
+    }
+  }
+  loginBtn.addEventListener('click', function () {
+    loginErr.textContent = '';
+    pw.value = '';
+    loginBox.hidden = false;
+    pw.focus();
+  });
+  $('loginCancel').addEventListener('click', function () { loginBox.hidden = true; });
+  $('logoutBtn').addEventListener('click', function () { setEditing(false); });
+  $('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    password = pw.value;
+    loginErr.textContent = 'Проверяю…';
+    admin('check').then(function (r) {
+      if (r.ok) {
+        try { sessionStorage.setItem('pb-pass', password); } catch (er) {}
+        loginBox.hidden = true;
+        loginErr.textContent = '';
+        setEditing(true);
+      } else {
+        password = '';
+        loginErr.textContent = r.j && r.j.error ? r.j.error : 'Не удалось войти';
+      }
+    }).catch(function () {
+      password = '';
+      loginErr.textContent = 'Нет связи с сервером. Работает только на опубликованном сайте.';
+    });
+  });
+  if (password) {
+    admin('check').then(function (r) { if (r.ok) setEditing(true); else password = ''; }).catch(function () {});
+  }
 
   // Лайтбокс
   var lb = document.getElementById('lb');
