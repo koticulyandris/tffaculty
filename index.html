@@ -110,6 +110,10 @@ h1 { margin: 0; font-family: var(--f-display); overflow-wrap: anywhere; }
   display: block; margin-top: 14px; font-size: clamp(1.15rem, 3.4vw, 2.1rem); font-weight: 600; line-height: 1.2;
   color: var(--violet-hi); text-wrap: balance;
 }
+.h1c {
+  display: inline-block; margin-top: 22px; padding: 8px 16px; background: var(--violet); color: var(--white);
+  font-size: clamp(.95rem, 2.4vw, 1.35rem); font-weight: 800; letter-spacing: .14em; text-transform: uppercase; line-height: 1.2;
+}
 .lede { margin: 22px 0 0; max-width: 46ch; color: var(--mute); font-size: 1.1rem; }
 
 .board { border: 1px solid rgba(169,155,242,.35); background: rgba(36,34,38,.7); padding: 18px 20px 20px; }
@@ -359,8 +363,8 @@ img{max-width:100%}
     <section class="hero station active" data-stop="top">
       <div>
         <p class="eyebrow mono">Старт</p>
-        <h1><span class="h1a">Профбюро</span><span class="h1b">транспортного факультета</span></h1>
-        <p class="lede">Наши фотографии и видео в одном месте.</p>
+        <h1><span class="h1a">Профбюро</span><span class="h1b">транспортного факультета</span><span class="h1c">Контент Машина</span></h1>
+        <p class="lede">Наша команда в одном месте.</p>
       </div>
       <nav class="board" aria-label="Маршрут по странице">
         <p class="mono">Маршрут</p>
@@ -478,7 +482,7 @@ const CONFIG = {
 };
 
 (function () {
-  var ICON_IMG = '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="6" y="10" width="36" height="28" rx="2"/><circle cx="17" cy="21" r="3.5"/><path d="M6 34 L18 24 L26 31 L33 25 L42 33"/></svg>';
+  var ICON_IMG = '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="24" cy="16" r="6"/><path d="M12 39c0-7 5-12 12-12s12 5 12 12"/><circle cx="9" cy="21" r="4"/><circle cx="39" cy="21" r="4"/><path d="M2 37c0-5 3-8 7-8"/><path d="M46 37c0-5-3-8-7-8"/></svg>';
 
   var password = '';
   try { password = sessionStorage.getItem('pb-pass') || ''; } catch (e) {}
@@ -591,7 +595,7 @@ const CONFIG = {
     fig.innerHTML =
       '<div class="plate"><div class="media">' +
       '<img alt="Фото ' + n + '">' +
-      '<button class="empty" type="button" aria-label="Место для фото ' + n + '">' + ICON_IMG + 'Место для фото</button>' +
+      '<button class="empty" type="button" aria-label="Информация о команде, фото ' + n + '">' + ICON_IMG + 'Информация о команде</button>' +
       '<button class="swap" type="button" aria-label="Заменить фото ' + n + '">Заменить</button>' +
       '<input type="file" accept="image/*" hidden></div>' +
       '<figcaption class="bar mono"><span class="tag">Фото ' + n + '</span><span class="cap"></span></figcaption></div>';
