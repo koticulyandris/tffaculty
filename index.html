@@ -805,10 +805,11 @@ const CONFIG = {
   brand: "3 Слоя",
   about: "Электрика, вода и тепло, умный дом. Проектируем, монтируем и настраиваем.",
   region: "Москва и область",
-  phone: "+7 (000) 000-00-00",
+  phone: "+7 (913) 467-93-12",
   email: "",
   telegram: "",          // ник без @, например "myhouse". Если пусто, заявка копируется в буфер.
-  formEndpoint: ""       // необязательно: адрес Formspree или своего сервера. Если задан, заявка отправляется туда.
+  leadEmail: "petrovitch40@gmail.com",  // сюда приходят заявки (на сайте не показывается)
+  formEndpoint: ""       // необязательно: свой адрес приёма. Если пусто, заявки уходят на leadEmail через formsubmit.co
 };
 
 /* ============================================================
@@ -1024,20 +1025,31 @@ const CASES = [
       'Стадия: ' + $('#stage').value +
       ($('#comment').value.trim() ? '\nКомментарий: ' + $('#comment').value.trim() : '');
     say('');
-    if (CONFIG.formEndpoint) {
-      fetch(CONFIG.formEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ message: text, name: name, contact: contact }) })
-        .then(function (r) { if (!r.ok) throw 0; say('Заявка отправлена. Мы свяжемся с вами.'); toast('Заявка отправлена'); form.reset(); })
-        .catch(function () { say('Не удалось отправить. Позвоните нам или попробуйте позже.', true); });
-    } else if (CONFIG.telegram) {
-      window.open('https://t.me/' + CONFIG.telegram + '?text=' + encodeURIComponent(text), '_blank', 'noopener');
-      say('Открыли Telegram с готовым сообщением. Нажмите «Отправить» там.');
-    } else {
-      var done = function (ok) { say(ok ? 'Текст заявки скопирован. Отправьте его нам любым удобным способом.' : 'Позвоните нам по номеру выше, чтобы оставить заявку.'); if (ok) toast('Заявка скопирована'); };
+    var btn = $('#send'); btn.disabled = true; btn.textContent = 'Отправляем…';
+    var subj = 'Заявка: ' + (svc.length ? svc.join(' + ') : 'консультация') + ' · ' + name;
+    var fields = {
+      'Услуги': svc.length ? svc.join(', ') : 'не выбрано (нужна консультация)',
+      'Тип объекта': obj,
+      'Площадь': $('#area').value ? $('#area').value + ' м²' : 'не указана',
+      'Стадия': $('#stage').value,
+      'Имя': name,
+      'Контакт для связи': contact,
+      'Комментарий': $('#comment').value.trim() || 'нет',
+      'Откуда': location.href
+    };
+    var payload = Object.assign({ _subject: subj, _template: 'table', _captcha: 'false', _honey: '' }, fields);
+    var url = CONFIG.formEndpoint || ('https://formsubmit.co/ajax/' + CONFIG.leadEmail);
+    var fallback = function () {
+      var done = function (ok) { say(ok ? 'Не удалось отправить автоматически. Текст заявки скопирован, пришлите его нам.' : 'Не удалось отправить. Позвоните нам: ' + CONFIG.phone, true); };
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
       else done(false);
-    }
+    };
+    fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify(payload) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok || j.success === 'false' || j.success === false) throw 0; }); })
+      .then(function () { say('Заявка отправлена. Мы свяжемся с вами в ближайшее время.'); toast('Заявка отправлена'); form.reset(); })
+      .catch(fallback)
+      .then(function () { btn.disabled = false; btn.textContent = 'Отправить заявку'; });
   });
-
 
   /* ---------- фотоотчёты ---------- */
   var caseI = 0, stgI = 0, bar = $('#casesBar'), rep = $('#report'), lb = $('#lb');
